@@ -1,150 +1,162 @@
 //
 //  NFXIntroViewController.m
-//  NFXTourViewControllerDEMO
 //
 //  Created by Tomoya_Hirano on 2014/10/04.
+//  Modified by Mahdi Bchetnia on 2014/12/04.
 //  Copyright (c) 2014年 Tomoya_Hirano. All rights reserved.
 //
 
 #import "NFXIntroViewController.h"
 
-#define nextText @"next"
-#define startText @"start"
+#define kNextButtonTitle NSLocalizedString(@"Next", "Tour button 'Next'")
+#define kStartButtonTitle NSLocalizedString(@"Start", "Tour button 'Start'")
 
-@interface NFXIntroViewController ()<UIScrollViewDelegate>{
-    UIScrollView*_scrollview;
-    UIButton*_button;
-    UIPageControl*_pgcontrol;
-    NSArray*_images;
-    UIImageView*_backgroundimageview;
-}
+#pragma mark - NFXIntroViewController
+
+@interface NFXScrollView : UIScrollView @end
+
+@interface NFXIntroViewController ()<UIScrollViewDelegate>;
+
+@property (nonatomic, strong) UIView* containerView;
+
+@property (nonatomic, strong) NFXScrollView* scrollView;
+@property (nonatomic, strong) UIPageControl* pageControl;
+@property (nonatomic, strong) UIButton* nextButton;
+
+@property (nonatomic, strong) NSArray* images;
 
 @end
 
 @implementation NFXIntroViewController
 
--(id)initWithViews:(NSArray*)images{
++ (instancetype)presentInViewController:(UIViewController*)viewController withImages:(NSArray*)images animated:(BOOL)animated completion:(void (^)())completion {
+    NFXIntroViewController* introViewController = [[NFXIntroViewController alloc] initWithViews:images];
+    [viewController presentViewController:introViewController animated:animated completion:completion];
+
+    return introViewController;
+}
+
+- (id)initWithViews:(NSArray*)images {
     self = [super init];
-    if (self) {
-        //check views length
-        NSAssert(images.count!=0, @".views's length is zero.");
-        
-        /**
-         *  setup viewcontroller
-         */
-        self.view.backgroundColor = [UIColor whiteColor];
+
+    if (self)
+    {
+        NSAssert(images.count != 0, @"NFXIntroViewController cannot be initialized without images.");
+
+        // Setup the view controller
         self.modalTransitionStyle = UIModalTransitionStyleCrossDissolve;
-        _images = images;
-        
-        /**
-         *  positions
-         */
-        CGRect svrect_ = CGRectZero;
-        svrect_.size.height = self.view.bounds.size.height/3*2;
-        svrect_.size.width = self.view.bounds.size.width/3*2;
-        CGPoint svcenter_ = CGPointZero;
-        svcenter_.x = self.view.center.x;
-        svcenter_.y = self.view.center.y-50;
-        CGSize svconsize = CGSizeZero;
-        svconsize.height = svrect_.size.height;
-        svconsize.width = svrect_.size.width * images.count;
-        
-        CGPoint pgconcenter_ = CGPointZero;
-        pgconcenter_.x = self.view.center.x;
-        pgconcenter_.y = svcenter_.y + (svrect_.size.height/2) + 20;
-        
-        CGRect btnrect_ = CGRectZero;
-        btnrect_.size.width = 250;
-        btnrect_.size.height = 50;
-        CGPoint btncenter_ = CGPointZero;
-        btncenter_.x = self.view.center.x;
-        btncenter_.y = self.view.bounds.size.height-65;
-        
-        UIImage* fill = createImageFromUIColor([UIColor colorWithWhite:0.9 alpha:1]);
-        
-        
-        /*
-         Views
-         */
-        _backgroundimageview = [[UIImageView alloc] initWithFrame:self.view.bounds];
-        [self.view addSubview:_backgroundimageview];
-        
-        _scrollview = [[UIScrollView alloc] initWithFrame:svrect_];
-        _scrollview.center = svcenter_;
-        _scrollview.backgroundColor = [UIColor redColor];
-        _scrollview.contentSize = svconsize;
-        _scrollview.pagingEnabled = true;
-        _scrollview.bounces = false;
-        _scrollview.delegate = self;
-        _scrollview.layer.borderWidth = 0.5f;
-        _scrollview.layer.borderColor = [UIColor colorWithWhite:0.8 alpha:1].CGColor;
-        _scrollview.showsHorizontalScrollIndicator = false;
-        _scrollview.layer.cornerRadius = 2;
-        [self.view addSubview:_scrollview];
-        
-        _pgcontrol = [[UIPageControl alloc] initWithFrame:CGRectZero];
-        _pgcontrol.pageIndicatorTintColor = [UIColor colorWithWhite:0.8 alpha:1];
-        _pgcontrol.currentPageIndicatorTintColor = [UIColor colorWithWhite:0.6 alpha:1];
-        _pgcontrol.numberOfPages = _images.count;
-        _pgcontrol.currentPage = 0;
-        [_pgcontrol sizeToFit];
-        _pgcontrol.center = pgconcenter_;
-        [self.view addSubview:_pgcontrol];
-        
-        _button = [UIButton buttonWithType:UIButtonTypeCustom];
-        [_button addTarget:self action:@selector(ButtonPushed:) forControlEvents:UIControlEventTouchDown];
-        [_button setTitleColor:[UIColor colorWithWhite:0.4 alpha:1] forState:UIControlStateNormal];
-        [_button setTitle:nextText forState:UIControlStateNormal];
-        [_button setBackgroundImage:fill forState:UIControlStateHighlighted];
-        _button.clipsToBounds = true;
-        _button.frame = btnrect_;
-        _button.center = btncenter_;
-        _button.layer.cornerRadius = 4;
-        _button.layer.borderWidth = 0.5f;
-        _button.layer.borderColor = [UIColor colorWithWhite:0.8 alpha:1].CGColor;
-        
-        [self.view addSubview:_button];
-        
-        int index_ = 0;
-        for (UIImage*image_ in images) {
-            NSAssert([image_ isKindOfClass:[UIImage class]],@".views are not only UIImage.");
-            CGRect ivrect_ = CGRectMake(_scrollview.bounds.size.width * index_,
-                                        0,
-                                        _scrollview.bounds.size.width,
-                                        _scrollview.bounds.size.height);
-            UIImageView*iv_ = [[UIImageView alloc] initWithFrame:ivrect_];
-            iv_.contentMode = UIViewContentModeScaleAspectFill;
-            iv_.clipsToBounds = true;
-            iv_.image = image_;
-            [_scrollview addSubview:iv_];
-            index_++;
+        self.images = images;
+
+        // Calculate positions
+        CGRect scrollViewRect = (CGRect){CGPointZero, CGSizeMake(self.view.bounds.size.width/3*2, self.view.bounds.size.height/3*2)};
+        CGPoint scrollViewCenter = CGPointMake(self.view.center.x, self.view.center.y-50);
+
+        CGSize pageControlSize = CGSizeMake(scrollViewRect.size.width * images.count, scrollViewRect.size.height);
+        CGPoint pageControlCenter = CGPointMake(self.view.center.x, scrollViewCenter.y + (scrollViewRect.size.height/2) + 20);
+
+        CGRect buttonRect = (CGRect){CGPointZero, CGSizeMake(250, 50)};
+        CGPoint buttonCenter = CGPointMake(self.view.center.x, self.view.bounds.size.height-65);
+
+        // Create the views
+        CGFloat statusBarHeight = [UIScreen mainScreen].bounds.size.height;
+        CGRect containerRect = self.view.bounds;
+        containerRect.origin.y = statusBarHeight;
+        containerRect.size.height -= statusBarHeight;
+        _containerView = [[UIView alloc] initWithFrame:containerRect];
+        _containerView.backgroundColor = [UIColor whiteColor];
+        _containerView.layer.cornerRadius = 14;
+        _containerView.layer.borderColor = [UIColor colorWithWhite:0.9 alpha:1].CGColor;
+        _containerView.layer.borderWidth = 1;
+        [self.view addSubview:_containerView];
+
+        _scrollView = [[NFXScrollView alloc] initWithFrame:scrollViewRect];
+        _scrollView.center = scrollViewCenter;
+        _scrollView.backgroundColor = [UIColor redColor];
+        _scrollView.contentSize = pageControlSize;
+        _scrollView.pagingEnabled = true;
+        _scrollView.bounces = false;
+        _scrollView.delegate = self;
+        _scrollView.layer.borderWidth = 0.5f;
+        _scrollView.layer.borderColor = [UIColor colorWithWhite:0.8 alpha:1].CGColor;
+        _scrollView.showsHorizontalScrollIndicator = false;
+        _scrollView.layer.cornerRadius = 2;
+        [_containerView addSubview:_scrollView];
+
+        _pageControl = [[UIPageControl alloc] initWithFrame:CGRectZero];
+        _pageControl.pageIndicatorTintColor = [UIColor colorWithWhite:0.8 alpha:1];
+        _pageControl.currentPageIndicatorTintColor = [UIColor colorWithWhite:0.6 alpha:1];
+        _pageControl.numberOfPages = _images.count;
+        _pageControl.currentPage = 0;
+        _pageControl.userInteractionEnabled = NO;
+        [_pageControl sizeToFit];
+        _pageControl.center = pageControlCenter;
+        [_containerView addSubview:_pageControl];
+
+        _nextButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_nextButton addTarget:self action:@selector(buttonTapped:) forControlEvents:UIControlEventTouchUpInside];
+        [_nextButton setTitleColor:[UIColor colorWithWhite:0.4 alpha:1] forState:UIControlStateNormal];
+        [_nextButton setTitle:kNextButtonTitle forState:UIControlStateNormal];
+        [_nextButton setBackgroundImage:[[UIColor colorWithWhite:0.9 alpha:1] nfx_fillImage] forState:UIControlStateHighlighted];
+        _nextButton.clipsToBounds = true;
+        _nextButton.frame = buttonRect;
+        _nextButton.center = buttonCenter;
+        _nextButton.layer.cornerRadius = 4;
+        _nextButton.layer.borderWidth = 0.5f;
+        _nextButton.layer.borderColor = [UIColor colorWithWhite:0.8 alpha:1].CGColor;
+        [_containerView addSubview:_nextButton];
+
+        // Create the image views for each image
+        NSInteger index = 0;
+        for (UIImage* image in images)
+        {
+            NSAssert([image isKindOfClass:[UIImage class]], @"Unexpected object type: NFXIntroViewController only supports UIImage objects.");
+
+            CGRect imageViewRect = CGRectMake(_scrollView.bounds.size.width * index,
+                                              0,
+                                              _scrollView.bounds.size.width,
+                                              _scrollView.bounds.size.height);
+
+            UIImageView* imageView = [[UIImageView alloc] initWithFrame:imageViewRect];
+            imageView.contentMode = UIViewContentModeScaleAspectFill;
+            imageView.clipsToBounds = true;
+            imageView.image = image;
+            [_scrollView addSubview:imageView];
+
+            index++;
         }
     }
+
     return self;
 }
 
--(void)ButtonPushed:(UIButton*)button{
-    int page_ = (int)round(_scrollview.contentOffset.x / _scrollview.frame.size.width);
-    /**
-     *  scroll or finish
-     */
-    if (page_!=(_images.count-1)) {
-        CGRect rect = _scrollview.frame;
-        rect.origin.x = rect.size.width * (page_+1);
-        [_scrollview scrollRectToVisible:rect animated:true];
-    }else{
+- (void)buttonTapped:(UIButton*)button {
+    NSInteger page = (NSInteger)round(_scrollView.contentOffset.x / _scrollView.frame.size.width);
+
+    if (page != _images.count-1)
+    {
+        CGRect rect = _scrollView.frame;
+        rect.origin.x = rect.size.width * (page+1);
+        [_scrollView scrollRectToVisible:rect animated:true];
+    }
+    else
+    {
         [self dismissViewControllerAnimated:true completion:nil];
     }
 }
 
--(void)scrollViewDidScroll:(UIScrollView *)scrollView{
-    int page_ = (int)round(scrollView.contentOffset.x / scrollView.frame.size.width);
-    if (page_==_images.count-1) {
-        [_button setTitle:startText forState:UIControlStateNormal];
-    }else{
-        [_button setTitle:nextText forState:UIControlStateNormal];
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    NSInteger page = (NSInteger)round(scrollView.contentOffset.x / scrollView.frame.size.width);
+
+    if (page == _images.count-1)
+    {
+        [_nextButton setTitle:kStartButtonTitle forState:UIControlStateNormal];
     }
-    _pgcontrol.currentPage = page_;
+    else
+    {
+        [_nextButton setTitle:kNextButtonTitle forState:UIControlStateNormal];
+    }
+
+    _pageControl.currentPage = page;
 }
 
 - (void)viewDidLoad {
@@ -155,16 +167,39 @@
     [super didReceiveMemoryWarning];
 }
 
-UIImage *(^createImageFromUIColor)(UIColor *) = ^(UIColor *color)
-{
+- (NSUInteger)supportedInterfaceOrientations {
+    return UIInterfaceOrientationMaskPortrait;
+}
+
+@end
+
+#pragma mark - UIScrollView subclass to allow longer swipes
+
+@implementation NFXScrollView
+
+// Allow swipes starting from the screen edges (outside the scroll view)
+- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
+    CGRect newFrame = self.frame;
+    newFrame = CGRectInset(self.bounds, -newFrame.origin.x, 0);
+    return CGRectContainsPoint(newFrame, point);
+}
+
+@end
+
+#pragma mark - UIColor helper category
+
+@implementation UIColor(NFXUIColorToUIImage)
+
+- (UIImage*)nfx_fillImage {
     CGRect rect = CGRectMake(0, 0, 1, 1);
     UIGraphicsBeginImageContext(rect.size);
     CGContextRef contextRef = UIGraphicsGetCurrentContext();
-    CGContextSetFillColorWithColor(contextRef, [color CGColor]);
+    CGContextSetFillColorWithColor(contextRef, self.CGColor);
     CGContextFillRect(contextRef, rect);
-    UIImage *img = UIGraphicsGetImageFromCurrentImageContext();
+    UIImage *fillImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
-    return img;
-};
+
+    return fillImage;
+}
 
 @end
