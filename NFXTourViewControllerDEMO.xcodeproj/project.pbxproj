@@ -31,8 +31,6 @@
 		D718987D19DFC40B00179E0C /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		D718987F19DFC40B00179E0C /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		D718988019DFC40B00179E0C /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		D718989319DFC40B00179E0C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D718989419DFC40B00179E0C /* NFXTourViewControllerDEMOTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NFXTourViewControllerDEMOTests.m; sourceTree = "<group>"; };
 		D718989E19DFC53900179E0C /* NFXIntroViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NFXIntroViewController.h; path = NFXTourViewController/NFXIntroViewController.h; sourceTree = SOURCE_ROOT; };
 		D718989F19DFC53900179E0C /* NFXIntroViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NFXIntroViewController.m; path = NFXTourViewController/NFXIntroViewController.m; sourceTree = SOURCE_ROOT; };
 		D71898A319DFD08000179E0C /* 101@2x~iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "101@2x~iphone.png"; sourceTree = "<group>"; };
@@ -62,7 +60,6 @@
 			isa = PBXGroup;
 			children = (
 				D718987719DFC40B00179E0C /* NFXTourViewControllerDEMO */,
-				D718989119DFC40B00179E0C /* NFXTourViewControllerDEMOTests */,
 				D718987619DFC40B00179E0C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -95,23 +92,6 @@
 			children = (
 				D718987919DFC40B00179E0C /* Info.plist */,
 				D718987A19DFC40B00179E0C /* main.m */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		D718989119DFC40B00179E0C /* NFXTourViewControllerDEMOTests */ = {
-			isa = PBXGroup;
-			children = (
-				D718989419DFC40B00179E0C /* NFXTourViewControllerDEMOTests.m */,
-				D718989219DFC40B00179E0C /* Supporting Files */,
-			);
-			path = NFXTourViewControllerDEMOTests;
-			sourceTree = "<group>";
-		};
-		D718989219DFC40B00179E0C /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				D718989319DFC40B00179E0C /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -349,6 +329,7 @@
 				D718989A19DFC40B00179E0C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
